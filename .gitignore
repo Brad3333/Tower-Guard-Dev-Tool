@@ -1,0 +1,27 @@
+# Node modules
+node_modules/
+
+# Environment variables
+.env
+
+# Firebase Admin SDK key (sensitive)
+tower-guard-1c483-firebase-adminsdk-fbsvc-60f5004342.json
+serviceAccountKey.json
+
+# Excel / spreadsheet files (sensitive member data)
+*.xlsx
+~$*.xlsx
+
+# Output files (if generated during runtime)
+output/
+output.xlsx
+TG2028.xlsx
+
+# Editor config files
+.vscode/
+
+# Prettier config
+.prettierrc
+
+# Git attributes
+.gitattributes

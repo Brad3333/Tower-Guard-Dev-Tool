@@ -1,0 +1,26 @@
+{
+    "name": "tower-guard-admin-tool",
+    "version": "1.0.0",
+    "description": "",
+    "main": "index.js",
+    "scripts": {
+        "test": "echo \"Error: no test specified\" && exit 1",
+        "start": "node --no-deprecation index.js",
+        "count": "npx sloc . --exclude \"node_modules\"",
+        "format": "npx prettier --write ."
+    },
+    "keywords": [],
+    "author": "",
+    "license": "ISC",
+    "type": "commonjs",
+    "dependencies": {
+        "chalk": "^4.1.2",
+        "dotenv": "^16.5.0",
+        "exceljs": "^4.4.0",
+        "firebase-admin": "^13.4.0",
+        "inquirer": "^8.2.6",
+        "nodemailer": "^7.0.3",
+        "prettier": "^3.5.3",
+        "xlsx": "^0.18.5"
+    }
+}
