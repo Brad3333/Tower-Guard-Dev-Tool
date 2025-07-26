@@ -21,7 +21,8 @@ async function updateUsers(filePath) {
             'First Name': firstName,
             'Last Name': lastName,
             'Email Address': email,
-            Role: role,
+            'Role': role,
+            'Starting Hours': startingHours,
         } = row;
 
         const fullName = `${firstName.trim()} ${lastName.trim()}`;
@@ -46,7 +47,7 @@ async function updateUsers(filePath) {
                     name: fullName,
                     email: trimmedEmail,
                     role: role === 'SAA' ? 'data' : 'member',
-                    totalHours: 0,
+                    totalHours: startingHours,
                     etextingHours: 0,
                     liveHours: 0,
                     scribingHours: 0,

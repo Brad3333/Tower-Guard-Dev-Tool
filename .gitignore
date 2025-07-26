@@ -7,7 +7,6 @@ node_modules/
 # Firebase Admin SDK key (sensitive)
 tower-guard-1c483-firebase-adminsdk-fbsvc-60f5004342.json
 serviceAccountKey.json
-package-lock.json
 
 # Excel / spreadsheet files (sensitive member data)
 *.xlsx

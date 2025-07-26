@@ -50,7 +50,7 @@ async function resetUser(email, needConfirmation) {
         lastMeeting: true,
         excusedAbsences: 0,
         year: userData.year,
-        eboard: userData.role,
+        eboard: userData.role === "member" ? false : true,
     });
 
     await batch.commit();
