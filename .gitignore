@@ -1,0 +1,28 @@
+# Node modules
+node_modules/
+
+# Environment variables
+.env
+
+# Firebase Admin SDK key (sensitive)
+service_account.json
+service_account.json.json
+serviceAccountKey.json
+
+# Excel / spreadsheet files (sensitive member data)
+*.xlsx
+~$*.xlsx
+
+# Output files (if generated during runtime)
+output/
+output.xlsx
+TG2028.xlsx
+
+# Editor config files
+.vscode/
+
+# Prettier config
+.prettierrc
+
+# Git attributes
+.gitattributes
