@@ -23,6 +23,8 @@ const resetYear = require('./commands/resetYear');
 const deleteYear = require('./commands/deleteYear');
 const emailUsers = require('./commands/emailUsers');
 const startingEmail = require('./commands/startingEmail');
+const excelAttendance = require('./commands/execlAttendance');
+const attendance = require('./commands/attendance');
 
 async function main() {
     try {
@@ -38,6 +40,12 @@ async function main() {
                 case 'u': {
                     const path = await askForFilePath();
                     await updateUsers(path);
+                    await exit();
+                    break;
+                }
+                case 'ea' : {
+                    const path = await askForFilePath();
+                    await excelAttendance(path);
                     await exit();
                     break;
                 }
@@ -68,6 +76,12 @@ async function main() {
                 case 'x': {
                     const year = await askForYear();
                     await exportUsers(year);
+                    await exit();
+                    break;
+                }
+                case 'xa': {
+                    const year = await askForYear();
+                    await attendance(year);
                     await exit();
                     break;
                 }

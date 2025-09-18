@@ -8,6 +8,7 @@ node_modules/
 service_account.json
 service_account.json.json
 serviceAccountKey.json
+keys.txt
 
 # Excel / spreadsheet files (sensitive member data)
 *.xlsx

@@ -43,6 +43,14 @@ async function deleteYear(year) {
             await doc.ref.delete();
         }
 
+        // Delete all documents in attendance_${year}
+        const attendanceSnap = await db
+            .collection(`attendance_${year.trim()}`)
+            .get();
+        for (const doc of attendanceSnap.docs) {
+            await doc.ref.delete();
+        }
+
         // Remove year-specific fields from global state doc
         const stateRef = db.collection('global').doc('state');
         await stateRef.update({

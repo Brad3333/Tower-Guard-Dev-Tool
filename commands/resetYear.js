@@ -18,6 +18,14 @@ async function resetYear(year) {
             await resetUser(data.email, false);
         }
 
+        // Delete all documents in attendance_${year}
+        const attendanceSnap = await db
+            .collection(`attendance_${year.trim()}`)
+            .get();
+        for (const doc of attendanceSnap.docs) {
+            await doc.ref.delete();
+        }
+
         await db
             .collection('global')
             .doc('state')

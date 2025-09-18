@@ -23,21 +23,21 @@ module.exports = {
                         chalk.magenta.bold('--- Data Handling ---')
                     ),
                     { name: 'Export users', value: 'x' },
+                    { name: 'Attendance', value: 'xa' },
                     { name: 'Transfer year', value: 't' },
 
-                    new inquirer.Separator(
-                        chalk.magenta.bold('--- Email ---')
-                    ),
+                    new inquirer.Separator(chalk.magenta.bold('--- Email ---')),
                     { name: 'Email users', value: 'm' },
-                    { name: 'Starting Hours Email', value: 's' },
+                    { name: 'Starting hours email', value: 's' },
 
                     new inquirer.Separator(
                         chalk.magenta.bold('--- Utilities ---')
                     ),
+                    { name: 'Excel attendance', value: 'ea' },
                     { name: 'Admin Tools', value: 'o' },
                     { name: 'Exit', value: 'exit' },
                 ],
-                pageSize: 13,
+                pageSize: 15,
             },
         ]);
         return action;
@@ -179,6 +179,33 @@ module.exports = {
         return selectedEmail;
     },
 
+    askForMeeting: async (year) => {
+        const meetingSnapshot = await db.collection(`attendance_${year.trim()}`).get();
+        const meetings = [];
+
+        meetingSnapshot.forEach((doc) => {
+            const data = doc.data();
+            
+            const name = data.eboard
+                ? `E-Board Meeting: ${data.date}`
+                : `General Meeting: ${data.date}`;
+            meetings.push({ name: name, value: doc.id });
+        });
+
+        // Let the user choose from filtered meetings
+        const { selectedMeeting } = await inquirer.prompt([
+            {
+                type: 'list',
+                name: 'selectedMeeting',
+                message: chalk.gray('Select a meeting:'),
+                choices: meetings,
+                prefix: '',
+            },
+        ]);
+
+        return selectedMeeting;
+    },
+
     askForYearInput: async () => {
         const { year } = await inquirer.prompt([
             {
@@ -314,6 +341,19 @@ module.exports = {
         return report;
     },
 
+    askToSendEmail: async () => {
+        const { send } = await inquirer.prompt([
+            {
+                type: 'confirm',
+                name: 'send',
+                prefix: '',
+                message: chalk.gray('Do you want to send an email?'),
+                default: false,
+            },
+        ]);
+        return send;
+    },
+
     askToSendEmails: async () => {
         const { send } = await inquirer.prompt([
             {
@@ -322,6 +362,21 @@ module.exports = {
                 prefix: '',
                 message: chalk.gray(
                     'Do you want to send reminder emails to users that are not on track?'
+                ),
+                default: false,
+            },
+        ]);
+        return send;
+    },
+
+    askToSendReminderEmails: async () => {
+        const { send } = await inquirer.prompt([
+            {
+                type: 'confirm',
+                name: 'send',
+                prefix: '',
+                message: chalk.gray(
+                    'Do you want to send emails to those that recieved unexcused absences?'
                 ),
                 default: false,
             },

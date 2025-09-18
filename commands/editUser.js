@@ -1,6 +1,7 @@
 const { db } = require('../config/firebase');
 const chalk = require('chalk');
-const { askForFieldIndex, askForNewValue } = require('../prompts');
+const { askForFieldIndex, askForNewValue, askToSendEmail} = require('../prompts');
+const emailUsers = require('../commands/emailUsers');
 
 async function editUser(email) {
     const snap = await db.collection('users').where('email', '==', email).get();
@@ -32,7 +33,7 @@ async function editUser(email) {
         const delta = parseFloat(newValue) - data[key];
         updateData.totalHours = (data.totalHours || 0) + delta;
         console.log(key);
-        if(key === 'scribingHours') {
+        if (key === 'scribingHours') {
             updateData.liveHours = (data.liveHours || 0) + delta;
         }
     }
@@ -41,6 +42,9 @@ async function editUser(email) {
     console.log(
         chalk.green.bold(`Updated ${key} from ${oldValue} to ${newValue}`)
     );
+
+    const sendEmail = await askToSendEmail();
+    if (sendEmail) await emailUsers('', [email], false);
 }
 
 module.exports = editUser;

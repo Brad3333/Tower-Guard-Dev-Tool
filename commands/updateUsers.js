@@ -45,7 +45,7 @@ async function updateUsers(filePath) {
                 .collection('users')
                 .doc(userRecord.uid)
                 .set({
-                    name: displayName ? displayName : fullName,
+                    name: displayName ? displayName.trim() : fullName,
                     firstName: firstName,
                     lastName: lastName,
                     email: trimmedEmail,
@@ -64,30 +64,25 @@ async function updateUsers(filePath) {
 
             console.log(chalk.green.bold(`Created user: ${trimmedEmail}`));
             const htmlContent = `
-    <p>Your Tower Guard Credentials</p>
+    <p>Tower Guard Tracker Account</p>
     <p>Hi ${firstName},</p>
-    <p>Your account is ready. Below are your credentials. To change your password you first have to log in to the app where you will find a reset password button in settings.</p>
-    <table>
-        <tr>
-            <td><strong>Email:</strong></td>
-            <td>${trimmedEmail}</td>
-        </tr>
-        <tr>
-            <td><strong>Password:</strong></td>
-            <td>${password}</td>
-        </tr>
-    </table>
+    <p>Your account is ready. To log in please download the app, then type in your email and press the reset password button to create a password.</p>
+    <p><a href="https://tower-guard-tracker-download.vercel.app/">Download the app here</a></p>
+    <p>Your login email is: ${trimmedEmail}</p>
+    <p>If you have any questions, please respond to this email.</p>
+    <p>Thank you!</p>
+    <p>- Tower Guard App Admin</p>
 `;
             await sendEmail(
                 trimmedEmail,
-                'Your Tower Guard Credentials',
+                'Tower Guard Tracker Account Created',
                 '',
                 htmlContent
             );
         } else {
             const ref = userSnap.docs[0].ref;
             await ref.update({
-                name: displayName ? displayName : fullName,
+                name: displayName ? displayName.trim() : fullName,
                 role: role === 'SAA' || role === 'Sergeant-at-Arms' ? 'data' : 'member',
                 eboard: role !== 'Member',
             });
