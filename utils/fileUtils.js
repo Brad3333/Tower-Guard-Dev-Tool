@@ -2,7 +2,7 @@ const fs = require('fs');
 const XLSX = require('xlsx');
 const ExcelJS = require('exceljs');
 const chalk = require('chalk');
-const { sendEmail } = require('../utils/email');
+const { sendTemplatedEmail } = require('../utils/email');
 
 function validateFilePath(path) {
     return fs.existsSync(path);
@@ -391,73 +391,8 @@ async function writeJsonToExcel(
                 //firstNameCell.font = { color: { argb: 'FFFFB6B6' }, bold: true, underline: true };
 
                 if (send && !emailSent) {
-                    const htmlContent = `
-    <!DOCTYPE html>
-    <html lang="en">
-    <head>
-        <meta charset="UTF-8">
-        <meta name="viewport" content="width=device-width, initial-scale=1.0">
-        <title>Tower Guard Reminder</title>
-        <style>
-            body {
-                font-family: Arial, sans-serif;
-                background-color: #f6f6f6;
-                margin: 0;
-                padding: 0;
-            }
-            .container {
-                max-width: 600px;
-                margin: 20px auto;
-                background-color: #ffffff;
-                padding: 20px;
-                border-radius: 10px;
-                box-shadow: 0 2px 8px rgba(0,0,0,0.1);
-            }
-            .header {
-                background-color: #18453B;
-                color: white;
-                padding: 15px;
-                text-align: center;
-                border-radius: 8px 8px 0 0;
-                font-size: 20px;
-                font-weight: bold;
-            }
-            .content {
-                padding: 20px;
-                line-height: 1.6;
-            }
-            table {
-                width: 100%;
-                border-collapse: collapse;
-                margin-top: 15px;
-            }
-            table td {
-                padding: 10px;
-                border: 1px solid #dddddd;
-            }
-            .footer {
-                margin-top: 20px;
-                font-size: 12px;
-                color: #888888;
-                text-align: center;
-            }
-            .btn {
-                display: inline-block;
-                padding: 10px 20px;
-                margin-top: 20px;
-                background-color: #18453B;
-                color: white;
-                text-decoration: none;
-                border-radius: 5px;
-            }
-        </style>
-    </head>
-    <body>
-        <div class="container">
-            <div class="header">Tower Guard Reminder</div>
-            <div class="content">
-                <p>Hi ${firstNameCell.value},</p>
-                <p>Based on the most recent report, you are not on track to meet the 120-hour requirement.</p>
+                    const htmlContent = `<p>Hi ${firstNameCell.value},</p>
+                <p>Based on the most recent report, you are not on track to meet the 120-hour requirement. Please don't worry if you are not on track, because most people aren't. We split up the hours so that each person is supposed to complete 4 hours per week to stay on track. However, we understand that most people are still figuring out their volunteer opportunites.</p>
                 <table>
                     <tr>
                         <td><strong>Your Total Hours:</strong></td>
@@ -468,21 +403,24 @@ async function writeJsonToExcel(
                         <td>${hours}</td>
                     </tr>
                 </table>
-                <p>Make sure to plan your remaining hours accordingly!</p>
-            </div>
-            <div class="footer">
-                &copy; ${new Date().getFullYear()} Tower Guard App Admin. All rights reserved.
-            </div>
-        </div>
-    </body>
-    </html>
-    `;
+                <p>Make sure to plan your remaining hours accordingly!</p>`;
+                    const styles = `
+                    table {
+                width: 100%;
+                border-collapse: collapse;
+                margin-top: 15px;
+            }
+            table td {
+                padding: 10px;
+                border: 1px solid #dddddd;
+            }`;
 
-                    await sendEmail(
+                    await sendTemplatedEmail(
                         emailCell.value.trim(),
                         'Tower Guard Reminder',
                         '',
-                        htmlContent
+                        htmlContent,
+                        styles
                     );
                     emailSent = true;
                 }

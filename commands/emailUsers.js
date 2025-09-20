@@ -1,7 +1,7 @@
 const { db } = require('../config/firebase');
 const chalk = require('chalk');
 const { confirmation, askForEmailInput } = require('../prompts');
-const { sendEmail } = require('../utils/email');
+const { sendEmail, sendTemplatedEmail } = require('../utils/email');
 
 const customize = (message, userData) => {
     let userMessage = '';
@@ -124,12 +124,19 @@ async function emailUsers(year, emails, eboard) {
                 .get();
             const userData = userSnap.docs[0].data();
             const specificMessage = customize(message, userData);
-            await sendEmail(
+            await sendTemplatedEmail(
                 userData.email,
                 'Tower Guard Notification',
-                specificMessage,
+                '',
+                `<p>${specificMessage.replace(/\n/g, '<br>')}</p>`,
                 ''
             );
+            // await sendEmail(
+            //     userData.email,
+            //     'Tower Guard Notification',
+            //     specificMessage,
+            //     ''
+            // );
         }
     }
 }
