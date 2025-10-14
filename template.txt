@@ -1,0 +1,6 @@
+Hi **first,
+
+This is a test if the pre made email template works.
+
+Regards,
+Tower Guard

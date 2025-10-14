@@ -3,6 +3,8 @@ const XLSX = require('xlsx');
 const ExcelJS = require('exceljs');
 const chalk = require('chalk');
 const { sendTemplatedEmail } = require('../utils/email');
+const customize = require('../utils/emailConverter');
+const path = require('path');
 
 function validateFilePath(path) {
     return fs.existsSync(path);
@@ -377,33 +379,26 @@ async function writeJsonToExcel(
             }
 
             if (totalHoursCell.value < hours) {
-                // lastNameCell.fill = {
-                //     type: 'pattern',
-                //     pattern: 'solid',
-                //     fgColor: { argb: 'FFFFB6B6' },
-                // };
-                //lastNameCell.font = { color: { argb: 'FFFFB6B6' }, bold: true, underline: true };
-                // firstNameCell.fill = {
-                //     type: 'pattern',
-                //     pattern: 'solid',
-                //     fgColor: { argb: 'FFFFB6B6' },
-                // };
-                //firstNameCell.font = { color: { argb: 'FFFFB6B6' }, bold: true, underline: true };
-
                 if (send && !emailSent) {
-                    const htmlContent = `<p>Hi ${firstNameCell.value},</p>
-                <p>Based on the most recent report, you are not on track to meet the 120-hour requirement. Please don't worry if you are not on track, because most people aren't. We split up the hours so that each person is supposed to complete 4 hours per week to stay on track. However, we understand that most people are still figuring out their volunteer opportunites.</p>
-                <table>
-                    <tr>
-                        <td><strong>Your Total Hours:</strong></td>
-                        <td>${totalHoursCell.value}</td>
-                    </tr>
-                    <tr>
-                        <td><strong>On Track Total Hours:</strong></td>
-                        <td>${hours}</td>
-                    </tr>
-                </table>
-                <p>Make sure to plan your remaining hours accordingly!</p>`;
+                    //     const htmlContent = `<p>Hi ${firstNameCell.value},</p>
+                    // <p>Based on the most recent report, you are not on track to meet the 120-hour requirement. Please don't worry if you are not on track, because most people aren't. We split up the hours so that each person is supposed to complete 4 hours per week to stay on track. However, we understand that most people are still figuring out their volunteer opportunites.</p>
+                    // <table>
+                    //     <tr>
+                    //         <td><strong>Your Total Hours:</strong></td>
+                    //         <td>${totalHoursCell.value}</td>
+                    //     </tr>
+                    //     <tr>
+                    //         <td><strong>On Track Total Hours:</strong></td>
+                    //         <td>${hours}</td>
+                    //     </tr>
+                    // </table>
+                    // <p>Make sure to plan your remaining hours accordingly!</p>`;
+                    const filePath = path.join(__dirname, '../exportEmail.txt');
+                    const htmlContent = customize(
+                        fs.readFileSync(filePath, 'utf8'),
+                        {},
+                        [firstNameCell.value, totalHoursCell.value, hours]
+                    );
                     const styles = `
                     table {
                 width: 100%;

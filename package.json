@@ -10,7 +10,7 @@
         "format": "npx prettier --write ."
     },
     "keywords": [],
-    "author": "",
+    "author": "Bradley Dean Asutin",
     "license": "ISC",
     "type": "commonjs",
     "dependencies": {

@@ -90,13 +90,64 @@ module.exports = {
         return decision;
     },
 
-    askForFilePath: async () => {
+    askForDisplayInputType: async () => {
+        const { decision } = await inquirer.prompt([
+            {
+                type: 'list',
+                name: 'decision',
+                prefix: '',
+                message: chalk.gray('Choose an operation:'),
+                choices: [
+                    { name: 'Pick from all users', value: 'a' },
+                    { name: 'Pick a specific email', value: 's' },
+                ],
+                pageSize: 3,
+            },
+        ]);
+        return decision;
+    },
+
+    askInputMethod: async () => {
+        const { decision } = await inquirer.prompt([
+            {
+                type: 'list',
+                name: 'decision',
+                prefix: '',
+                message: chalk.gray('Choose an operation:'),
+                choices: [
+                    { name: 'Enter emails as one list', value: 'l' },
+                    { name: 'Pick emails manually', value: 'm' },
+                ],
+                pageSize: 3,
+            },
+        ]);
+        return decision;
+    },
+
+    askForMessageTemplate: async () => {
+        const { decision } = await inquirer.prompt([
+            {
+                type: 'list',
+                name: 'decision',
+                prefix: '',
+                message: chalk.gray('Choose an operation:'),
+                choices: [
+                    { name: 'Enter an already made template', value: 'a' },
+                    { name: 'Create one now', value: 'c' },
+                ],
+                pageSize: 3,
+            },
+        ]);
+        return decision;
+    },
+
+    askForFilePath: async (type) => {
         const { path } = await inquirer.prompt([
             {
                 type: 'input',
                 name: 'path',
                 prefix: '',
-                message: chalk.gray('Enter Excel file path:'),
+                message: chalk.gray(`Enter ${type} file path:`),
                 validate: (input) =>
                     fs.existsSync(input.replace(/^"(.*)"$/, '$1'))
                         ? true
@@ -104,6 +155,39 @@ module.exports = {
             },
         ]);
         return path.replace(/^"(.*)"$/, '$1');
+    },
+
+    askForListOfEmails: async () => {
+        const { path } = await inquirer.prompt([
+            {
+                type: 'input',
+                name: 'path',
+                prefix: '',
+                message: chalk.gray("Enter list of users seperated by ',':"),
+            },
+        ]);
+
+        const userSnapshot = await db.collection('users').get();
+        const emails = [];
+        userSnapshot.forEach((doc) => {
+            const data = doc.data();
+            if (data.email) {
+                emails.push(data.email);
+            }
+        });
+
+        let output = path
+            .split(',')
+            .map((str) => str.trim())
+            .filter(
+                (str) =>
+                    /[a-zA-Z0-9.]+@[a-zA-Z0-9]+.(edu|com|org)/.test(str) &&
+                    emails.includes(str)
+            );
+
+        console.log(output);
+
+        return output;
     },
 
     askForOutputPath: async () => {
@@ -180,12 +264,14 @@ module.exports = {
     },
 
     askForMeeting: async (year) => {
-        const meetingSnapshot = await db.collection(`attendance_${year.trim()}`).get();
+        const meetingSnapshot = await db
+            .collection(`attendance_${year.trim()}`)
+            .get();
         const meetings = [];
 
         meetingSnapshot.forEach((doc) => {
             const data = doc.data();
-            
+
             const name = data.eboard
                 ? `E-Board Meeting: ${data.date}`
                 : `General Meeting: ${data.date}`;

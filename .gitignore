@@ -6,6 +6,8 @@ node_modules/
 
 # Firebase Admin SDK key (sensitive)
 service_account.json
+service_account_app.json
+service_account_test.json
 service_account.json.json
 serviceAccountKey.json
 keys.txt

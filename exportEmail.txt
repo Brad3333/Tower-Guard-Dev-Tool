@@ -1,0 +1,13 @@
+<p>Hi **0,</p>
+<p>Based on the most recent report, you are not on track to meet the 120-hour requirement. We split up the hours so that each person is supposed to complete 4 hours per week to stay on track.</p>
+<table>
+<tr>
+<td><strong>Your Total Hours:</strong></td>
+<td>**1</td>
+</tr>
+<tr>
+<td><strong>On Track Total Hours:</strong></td>
+<td>**2</td>
+</tr>
+</table>
+<p>Make sure to plan your remaining hours accordingly!</p>

@@ -1,8 +1,11 @@
 const { db, auth } = require('../config/firebase');
 const { generateRandomPassword } = require('../utils/password');
 const { parseExcel } = require('../utils/fileUtils');
-const { sendEmail } = require('../utils/email');
+const { sendTemplatedEmail } = require('../utils/email');
 const chalk = require('chalk');
+const path = require('path');
+const customize = require('../utils/emailConverter');
+const fs = require('fs')
 
 async function updateUsers(filePath) {
     const users = parseExcel(filePath);
@@ -22,7 +25,7 @@ async function updateUsers(filePath) {
             'Last Name': lastName,
             'Display Name': displayName,
             'Email Address': email,
-            'Role': role,
+            Role: role,
             'Starting Hours': startingHours,
         } = row;
 
@@ -49,7 +52,10 @@ async function updateUsers(filePath) {
                     firstName: firstName,
                     lastName: lastName,
                     email: trimmedEmail,
-                    role: role === 'SAA' || role === 'Sergeant-at-Arms' ? 'data' : 'member',
+                    role:
+                        role === 'SAA' || role === 'Sergeant-at-Arms'
+                            ? 'data'
+                            : 'member',
                     totalHours: startingHours,
                     etextingHours: 0,
                     liveHours: 0,
@@ -63,27 +69,38 @@ async function updateUsers(filePath) {
                 });
 
             console.log(chalk.green.bold(`Created user: ${trimmedEmail}`));
-            const htmlContent = `
-    <p>Tower Guard Tracker Account</p>
-    <p>Hi ${firstName},</p>
-    <p>Your account is ready. To log in please download the app, then type in your email and press the reset password button to create a password.</p>
-    <p><a href="https://tower-guard-tracker-download.vercel.app/">Download the app here</a></p>
-    <p>Your login email is: ${trimmedEmail}</p>
-    <p>If you have any questions, please respond to this email.</p>
-    <p>Thank you!</p>
-    <p>- Tower Guard App Admin</p>
-`;
-            await sendEmail(
+            const filePath = path.join(__dirname, '../createEmail.txt');
+            const htmlContent = customize(
+                fs.readFileSync(filePath, 'utf8'),
+                {},
+                [firstName, trimmedEmail]
+            );
+            //             const htmlContent = `
+            //     <p>Tower Guard Tracker Account</p>
+            //     <p>Hi ${firstName},</p>
+            //     <p>Your account is ready. To log in please download the app, then type in your email and press the reset password button to create a password.</p>
+            //     <p><a href="https://tower-guard-tracker-download.vercel.app/">Download the app here</a></p>
+            //     <p>Your login email is: ${trimmedEmail}</p>
+            //     <p>If you have any questions, please respond to this email.</p>
+            //     <p>Thank you!</p>
+            //     <p>- Tower Guard App Admin</p>
+            // `;
+            await sendTemplatedEmail(
                 trimmedEmail,
                 'Tower Guard Tracker Account Created',
                 '',
-                htmlContent
+                htmlContent,
+                '',
+                'Tower Guard Tracker Account'
             );
         } else {
             const ref = userSnap.docs[0].ref;
             await ref.update({
                 name: displayName ? displayName.trim() : fullName,
-                role: role === 'SAA' || role === 'Sergeant-at-Arms' ? 'data' : 'member',
+                role:
+                    role === 'SAA' || role === 'Sergeant-at-Arms'
+                        ? 'data'
+                        : 'member',
                 eboard: role !== 'Member',
             });
             console.log(chalk.green.bold(`Updated user: ${trimmedEmail}`));

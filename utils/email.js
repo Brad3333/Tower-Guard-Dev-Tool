@@ -25,7 +25,14 @@ async function sendEmail(to, subject, text, html) {
     }
 }
 
-async function sendTemplatedEmail(to, subject = 'Tower Guard Reminder', text, html, styles = '') {
+async function sendTemplatedEmail(
+    to,
+    subject = 'Tower Guard Reminder',
+    text,
+    html,
+    styles = '',
+    title = ''
+) {
     const htmlTemplate = `<!DOCTYPE html>
     <html lang="en">
     <head>
@@ -71,7 +78,7 @@ async function sendTemplatedEmail(to, subject = 'Tower Guard Reminder', text, ht
     </head>
     <body>
         <div class="container">
-            <div class="header">Tower Guard Reminder</div>
+            <div class="header">${title ? title : 'Tower Guard Reminder'}</div>
             <div class="content">
                 ${html}
             </div>

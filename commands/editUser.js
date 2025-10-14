@@ -1,6 +1,10 @@
 const { db } = require('../config/firebase');
 const chalk = require('chalk');
-const { askForFieldIndex, askForNewValue, askToSendEmail} = require('../prompts');
+const {
+    askForFieldIndex,
+    askForNewValue,
+    askToSendEmail,
+} = require('../prompts');
 const emailUsers = require('../commands/emailUsers');
 
 async function editUser(email) {

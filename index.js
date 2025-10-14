@@ -10,6 +10,10 @@ const {
     askForYear,
     askForTestingAction,
     askForEmailDecision,
+    askInputMethod,
+    askForListOfEmails,
+    askForMessageTemplate,
+    askForDisplayInputType,
 } = require('./prompts');
 
 const updateUsers = require('./commands/updateUsers');
@@ -38,19 +42,19 @@ async function main() {
 
             switch (action) {
                 case 'u': {
-                    const path = await askForFilePath();
+                    const path = await askForFilePath('Excel');
                     await updateUsers(path);
                     await exit();
                     break;
                 }
-                case 'ea' : {
-                    const path = await askForFilePath();
+                case 'ea': {
+                    const path = await askForFilePath('Excel');
                     await excelAttendance(path);
                     await exit();
                     break;
                 }
                 case 's': {
-                    const path = await askForFilePath();
+                    const path = await askForFilePath('Excel');
                     await startingEmail(path);
                     await exit();
                     break;
@@ -68,8 +72,15 @@ async function main() {
                     break;
                 }
                 case 'v': {
-                    const year = await askToDisplay();
-                    await displayUsers(year);
+                    const decision = await askForDisplayInputType();
+                    let year = ''
+                    let email = ''
+                    if(decision === 'a') {
+                        year = await askToDisplay();
+                    } else {
+                        email = await askForEmail();
+                    }
+                    await displayUsers(year, email);
                     await exit();
                     break;
                 }
@@ -90,20 +101,30 @@ async function main() {
                     let year = '';
                     let emails = [];
                     let eboard = false;
+                    let messagePath = ''
                     if (decision === 'a') {
                         year = await askForYear();
                     } else if (decision === 'e') {
                         year = await askForYear();
                         eboard = true;
                     } else if (decision === 's') {
-                        let email = '';
-                        while (email !== 'DONE') {
-                            email = await askForEmail(true, emails);
-                            if (email !== 'DONE' && !emails.includes(email))
-                                emails.push(email);
+                        const inputDecision = await askInputMethod();
+                        if (inputDecision === 'l') {
+                            emails = await askForListOfEmails();
+                        } else {
+                            let email = '';
+                            while (email !== 'DONE') {
+                                email = await askForEmail(true, emails);
+                                if (email !== 'DONE' && !emails.includes(email))
+                                    emails.push(email);
+                            }
                         }
                     }
-                    await emailUsers(year, emails, eboard);
+                    const messageDecision = await askForMessageTemplate();
+                    if(messageDecision === 'a') {
+                        messagePath = await askForFilePath('.txt');
+                    }
+                    await emailUsers(year, emails, eboard, messagePath);
                     await exit();
                     break;
                 }

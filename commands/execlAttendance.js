@@ -17,7 +17,11 @@ async function excelAttendance(filePath) {
 
         const ref = snap.docs[0].ref;
         const data = snap.docs[0].data();
-        let updateData = { attendance: data.attendance, totalHours: data.totalHours, excusedAbsences: data.excusedAbsences };
+        let updateData = {
+            attendance: data.attendance,
+            totalHours: data.totalHours,
+            excusedAbsences: data.excusedAbsences,
+        };
         if (present !== -1 && present !== 0) {
             updateData.attendance += 1;
             updateData.totalHours += present;
@@ -25,9 +29,7 @@ async function excelAttendance(filePath) {
             updateData.excusedAbsences += 1;
         }
         await ref.update(updateData);
-        console.log(
-            chalk.green.bold(`Updated attendance for ${email}`)
-        );
+        console.log(chalk.green.bold(`Updated attendance for ${email}`));
     }
 }
 

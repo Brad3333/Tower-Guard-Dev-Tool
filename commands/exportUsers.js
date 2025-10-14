@@ -49,7 +49,7 @@ async function exportUsers(yearInput) {
             'Live Hours': data.liveHours,
             'E-Texting Hours': data.etextingHours,
             'Scribing Hours': data.scribingHours,
-            'Attendance' : data.attendance,
+            Attendance: data.attendance,
             'Excused Absences': data.excusedAbsences,
         };
         if (!data.exclude) {

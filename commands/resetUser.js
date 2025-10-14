@@ -38,23 +38,26 @@ async function resetUser(email, needConfirmation) {
         absenceSnap.forEach((doc) => batch.delete(doc.ref));
     }
 
-    await db.collection('users').doc(uid).set({
-        firstName: userData.firstName,
-        lastName: userData.lastName,
-        exclude: userData.exclude,
-        name: userData.name,
-        email: userData.email,
-        role: userData.role,
-        totalHours: 0,
-        etextingHours: 0,
-        liveHours: 0,
-        scribingHours: 0,
-        attendance: 0,
-        lastMeeting: true,
-        excusedAbsences: 0,
-        year: userData.year,
-        eboard: userData.role === "member" ? false : true,
-    });
+    await db
+        .collection('users')
+        .doc(uid)
+        .set({
+            firstName: userData.firstName,
+            lastName: userData.lastName,
+            exclude: userData.exclude,
+            name: userData.name,
+            email: userData.email,
+            role: userData.role,
+            totalHours: 0,
+            etextingHours: 0,
+            liveHours: 0,
+            scribingHours: 0,
+            attendance: 0,
+            lastMeeting: true,
+            excusedAbsences: 0,
+            year: userData.year,
+            eboard: userData.role === 'member' ? false : true,
+        });
 
     await batch.commit();
     console.log(chalk.green.bold(`Reset Firestore user data for "${email}"`));
