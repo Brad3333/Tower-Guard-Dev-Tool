@@ -41,46 +41,46 @@ async function main() {
         console.clear();
         console.log(chalk.greenBright.bold('Tower Guard Admin Tool v1.0.0'));
 
-        // Read config.txt if it exists
         let content = '';
         try {
             content = await fsPromises.readFile('config.txt', 'utf8');
+            // Remove BOM
+            if (content.charCodeAt(0) === 0xfeff) content = content.slice(1);
+
+            // If file contains invalid characters, treat as empty
+            if (!content.trim() || /[^\x00-\x7F]/.test(content)) {
+                content = '';
+            }
         } catch (err) {
-            if (err.code !== 'ENOENT') throw err; // rethrow other errors
+            if (err.code !== 'ENOENT') throw err;
         }
 
         let directory = content.trim();
 
+        // If config.txt is empty or invalid, ask the user for a base directory
         if (!directory) {
-            // Ask user for base directory
-            directory = await setUpDirectory();
+            directory = await setUpDirectory(); // prompt user
 
             // Append subfolder
             directory = path.join(directory, 'TG Reports');
 
-            // Ensure the folder exists
-            if (!fs.existsSync(directory)) {
-                fs.mkdirSync(directory, { recursive: true });
-                console.log(chalk.gray(`Created directory: ${directory}`));
-            }
-
             console.log(chalk.yellow(`Saving directory: ${directory}`));
-
-            // Save to config.txt
-            await fsPromises.writeFile('config.txt', directory, 'utf8');
-            console.log(chalk.green('Directory saved to config.txt.'));
         } else {
             console.log(
                 chalk.cyan('Loaded directory from config.txt:'),
                 directory
             );
-
-            // Ensure directory exists even if loaded from file
-            if (!fs.existsSync(directory)) {
-                fs.mkdirSync(directory, { recursive: true });
-                console.log(chalk.gray(`Created directory: ${directory}`));
-            }
         }
+
+        // Ensure the folder exists
+        if (!fs.existsSync(directory)) {
+            fs.mkdirSync(directory, { recursive: true });
+            console.log(chalk.gray(`Created directory: ${directory}`));
+        }
+
+        // Save a clean UTF-8 path back to config.txt
+        await fsPromises.writeFile('config.txt', directory, 'utf8');
+        console.log(chalk.green('Directory saved to config.txt.'));
 
         let action = '';
 
