@@ -5,6 +5,79 @@ const chalk = require('chalk');
 const path = require('path');
 
 module.exports = {
+
+    askForEmail: async () => {
+        const { email } = await inquirer.prompt([
+            {
+                type: 'input',
+                name: 'email',
+                prefix: '',
+                message: chalk.gray(
+                    'Enter the email address to send messages from:'
+                ),
+                validate(input) {
+                    if (!input.trim()) {
+                        return chalk.red('Email cannot be empty.');
+                    }
+                    if (
+                        !/^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.(com|edu|org)$/.test(
+                            input
+                        )
+                    ) {
+                        return chalk.red('Not a valid email.');
+                    }
+                    return true;
+                },
+            },
+        ]);
+        return email;
+    },
+
+    askForEmailPass: async () => {
+        const { pass } = await inquirer.prompt([
+            {
+                type: 'password',
+                name: 'pass',
+                prefix: '',
+                mask: '*',
+                message: chalk.gray(
+                    'Enter your email app password (the special password used to let this program send emails):'
+                ),
+                validate(input) {
+                    if (!input.trim()) {
+                        return chalk.red('Password cannot be empty.');
+                    }
+                    return true;
+                },
+            },
+        ]);
+        return pass;
+    },
+
+    askForDirectory: async () => {
+        const { directory } = await inquirer.prompt([
+            {
+                type: 'input',
+                name: 'directory',
+                prefix: '',
+                message: chalk.gray('Enter the base folder path for your reports:'),
+                validate(input) {
+                    if (!input.trim()) {
+                        return chalk.red('Path cannot be empty.');
+                    }
+                    if (!fs.existsSync(input)) {
+                        return chalk.red('That directory does not exist.');
+                    }
+                    if (!fs.lstatSync(input).isDirectory()) {
+                        return chalk.red('That path is not a directory.');
+                    }
+                    return true;
+                },
+            },
+        ]);
+        return directory;
+    },
+
     askForMainAction: async () => {
         const { action } = await inquirer.prompt([
             {
@@ -36,12 +109,31 @@ module.exports = {
                     ),
                     { name: 'Excel attendance', value: 'ea' },
                     { name: 'Admin Tools', value: 'o' },
+                    { name: 'Settings', value: 'es' },
                     { name: 'Exit', value: 'exit' },
                 ],
-                pageSize: 15,
+                pageSize: 16,
             },
         ]);
         return action;
+    },
+
+    askForSettingsVar: async () => {
+        const { variable } = await inquirer.prompt([
+            {
+                type: 'list',
+                name: 'variable',
+                prefix: '',
+                message: chalk.gray('Choose:'),
+                choices: [
+                    { name: 'Email address', value: 'EMAIL_USER' },
+                    { name: 'Email password', value: 'EMAIL_PASS' },
+                    { name: 'Report directory', value: 'REPORT_DIRECTORY' },
+                ],
+                pageSize: 3,
+            },
+        ]);
+        return variable;
     },
 
     askForTestingAction: async () => {
@@ -224,10 +316,10 @@ module.exports = {
                 name: 'path',
                 prefix: '',
                 message: chalk.gray(
-                    "Enter output file path as xlsx, or enter 'd' for default:"
+                    "Enter output file path as xlsx, enter 'd' for default or 's' to skip generation:"
                 ),
                 validate: (input) =>
-                    input.includes('.xlsx') || input === 'd'
+                    input.includes('.xlsx') || input === 'd' || input === 's'
                         ? true
                         : chalk.red('Needs to be an excel file.'),
             },
@@ -478,6 +570,19 @@ module.exports = {
             },
         ]);
         return report;
+    },
+
+    askToUpdateSetting: async () => {
+        const { update } = await inquirer.prompt([
+            {
+                type: 'confirm',
+                name: 'update',
+                prefix: '',
+                message: chalk.gray('Do you want to change this variable?'),
+                default: false,
+            },
+        ]);
+        return update;
     },
 
     askToGeneratePlot: async () => {

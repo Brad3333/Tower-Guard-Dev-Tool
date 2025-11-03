@@ -3,6 +3,7 @@ import pandas as pd
 import sys
 from targethours import find_total
 import files as fs
+from datetime import datetime
 
 arguments = sys.argv[1:]
 
@@ -64,7 +65,7 @@ dates = [str(date).split(' ')[0] for date in combined_df["Date"].dropna().unique
 totals = [find_total(date) for date in dates]
 
 if debug:
-    #print(f'Used the following {len(totals)} reports for plot:')
+    files.sort(key=lambda f: datetime.strptime(f.split('_')[-1].split('.')[0], '%m-%d-%Y'))
     zipped = zip(files, totals)
     for tup in zipped:
         file_name = f'TG_Report_{tup[0].split('_')[-1]}'
@@ -154,7 +155,7 @@ plt.plot(
     markersize=8,
     alpha=1,
     marker="o",
-    label="Daily Average",
+    label="Average",
 )
 
 # Legend inside top-left

@@ -1,7 +1,7 @@
 const chalk = require('chalk');
-const fsPromises = require('fs').promises;
-const fs = require('fs');
-const path = require('path');
+// const fsPromises = require('fs').promises;
+// const fs = require('fs');
+// const path = require('path');
 
 const {
     askForMainAction,
@@ -17,7 +17,6 @@ const {
     askForListOfEmails,
     askForMessageTemplate,
     askForDisplayInputType,
-    setUpDirectory,
 } = require('./prompts');
 
 const updateUsers = require('./commands/updateUsers');
@@ -34,53 +33,16 @@ const startingEmail = require('./commands/startingEmail');
 const excelAttendance = require('./commands/execlAttendance');
 const attendance = require('./commands/attendance');
 
-//C:\Users\bdaus\OneDrive\Desktop
+const readSettings = require('./utils/readSettings');
+const editSettings = require('./utils/editSettings');
 
 async function main() {
     try {
         console.clear();
         console.log(chalk.greenBright.bold('Tower Guard Admin Tool v1.0.0'));
 
-        let content = '';
-        try {
-            content = await fsPromises.readFile('config.txt', 'utf8');
-            // Remove BOM
-            if (content.charCodeAt(0) === 0xfeff) content = content.slice(1);
-
-            // If file contains invalid characters, treat as empty
-            if (!content.trim() || /[^\x00-\x7F]/.test(content)) {
-                content = '';
-            }
-        } catch (err) {
-            if (err.code !== 'ENOENT') throw err;
-        }
-
-        let directory = content.trim();
-
-        // If config.txt is empty or invalid, ask the user for a base directory
-        if (!directory) {
-            directory = await setUpDirectory(); // prompt user
-
-            // Append subfolder
-            directory = path.join(directory, 'TG Reports');
-
-            console.log(chalk.yellow(`Saving directory: ${directory}`));
-        } else {
-            console.log(
-                chalk.cyan('Loaded directory from config.txt:'),
-                directory
-            );
-        }
-
-        // Ensure the folder exists
-        if (!fs.existsSync(directory)) {
-            fs.mkdirSync(directory, { recursive: true });
-            console.log(chalk.gray(`Created directory: ${directory}`));
-        }
-
-        // Save a clean UTF-8 path back to config.txt
-        await fsPromises.writeFile('config.txt', directory, 'utf8');
-        console.log(chalk.green('Directory saved to config.txt.'));
+        const settings = await readSettings();
+        const directory = settings.directory;
 
         let action = '';
 
@@ -173,6 +135,11 @@ async function main() {
                     }
                     await emailUsers(year, emails, eboard, messagePath);
                     await exit();
+                    break;
+                }
+                case 'es': {
+                    await editSettings();
+                    await exit()
                     break;
                 }
                 case 'o': {
