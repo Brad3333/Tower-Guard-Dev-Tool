@@ -2,7 +2,7 @@ const { db } = require('../config/firebase');
 const chalk = require('chalk');
 const { confirmation, askForEmailInput } = require('../prompts');
 const { sendTemplatedEmail } = require('../utils/email');
-const customize = require('../utils/emailConverter')
+const customize = require('../utils/emailConverter');
 const fs = require('fs');
 
 async function emailUsers(year, emails, eboard, messagePath) {
@@ -33,13 +33,12 @@ async function emailUsers(year, emails, eboard, messagePath) {
         });
     }
 
-    let message = ''
+    let message = '';
 
-    if(messagePath) {
+    if (messagePath) {
         const data = fs.readFileSync(messagePath, 'utf8');
-        message = data
-    }
-    else message = await askForEmailInput();
+        message = data;
+    } else message = await askForEmailInput();
 
     const testMessage = customize(message, {
         name: 'Bradley Austin',
@@ -69,11 +68,21 @@ async function emailUsers(year, emails, eboard, messagePath) {
                 .get();
             const userData = userSnap.docs[0].data();
             const specificMessage = customize(message, userData);
+
+            let formattedMessage;
+
+            if (/<[a-z][\s\S]*>/i.test(specificMessage)) {
+                // Message already contains HTML tags — don't modify
+                formattedMessage = specificMessage;
+            } else {
+                // Plain text — safely convert newlines to <br> and wrap in <p>
+                formattedMessage = `<p>${specificMessage.replace(/\n/g, '<br>')}</p>`;
+            }
             await sendTemplatedEmail(
                 userData.email,
                 'Tower Guard Notification',
                 '',
-                `<p>${specificMessage.replace(/\n/g, '<br>')}</p>`,
+                formattedMessage,
                 ''
             );
         }

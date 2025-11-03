@@ -2,6 +2,7 @@ const inquirer = require('inquirer');
 const { db } = require('./config/firebase');
 const fs = require('fs');
 const chalk = require('chalk');
+const path = require('path');
 
 module.exports = {
     askForMainAction: async () => {
@@ -70,6 +71,32 @@ module.exports = {
             },
         ]);
         return action;
+    },
+
+    askForPlotAction: async () => {
+        const { actions } = await inquirer.prompt([
+            {
+                type: 'checkbox',
+                name: 'actions',
+                prefix: '',
+                message: chalk.gray('Select testing actions to perform:'),
+                choices: [
+                    { name: 'Save', value: 'save' },
+                    { name: 'Show', value: 'show' },
+                    { name: 'Debug', value: 'debug' },
+                ],
+                pageSize: 5,
+                validate(answer) {
+                    if (answer.length === 0) {
+                        return chalk.red(
+                            'You must select at least one action.'
+                        );
+                    }
+                    return true;
+                },
+            },
+        ]);
+        return actions; // e.g. ['save', 'debug']
     },
 
     askForEmailDecision: async () => {
@@ -196,11 +223,13 @@ module.exports = {
                 type: 'input',
                 name: 'path',
                 prefix: '',
-                message: chalk.gray('Enter output file path as xlsx:'),
+                message: chalk.gray(
+                    "Enter output file path as xlsx, or enter 'd' for default:"
+                ),
                 validate: (input) =>
-                    input.includes('.xlsx')
+                    input.includes('.xlsx') || input === 'd'
                         ? true
-                        : chalk.red('File not found.'),
+                        : chalk.red('Needs to be an excel file.'),
             },
         ]);
         return path.replace(/^"(.*)"$/, '$1');
@@ -414,6 +443,30 @@ module.exports = {
         return confirmed;
     },
 
+    setUpDirectory: async () => {
+        const { directory } = await inquirer.prompt([
+            {
+                type: 'input',
+                name: 'directory',
+                prefix: '',
+                message: chalk.gray('Enter or paste the base directory path, this will be where all your reports are placed:'),
+                validate(input) {
+                    if (!input.trim()) {
+                        return chalk.red('Path cannot be empty.');
+                    }
+                    if (!fs.existsSync(input)) {
+                        return chalk.red('That directory does not exist.');
+                    }
+                    if (!fs.lstatSync(input).isDirectory()) {
+                        return chalk.red('That path is not a directory.');
+                    }
+                    return true;
+                },
+            },
+        ]);
+        return directory;
+    },
+
     askToGenerateReport: async () => {
         const { report } = await inquirer.prompt([
             {
@@ -425,6 +478,19 @@ module.exports = {
             },
         ]);
         return report;
+    },
+
+    askToGeneratePlot: async () => {
+        const { plot } = await inquirer.prompt([
+            {
+                type: 'confirm',
+                name: 'plot',
+                prefix: '',
+                message: chalk.gray('Do you want to generate a plot?'),
+                default: false,
+            },
+        ]);
+        return plot;
     },
 
     askToSendEmail: async () => {
@@ -476,9 +542,9 @@ module.exports = {
                 type: 'input',
                 name: 'hours',
                 prefix: '',
-                message: chalk.gray('How many hours would be on track:'),
+                message: chalk.gray('How many hours would be on track, or enter \'d\' for default:'),
                 validate: (input) =>
-                    /^\d+$/.test(input)
+                    /^\d+$/.test(input) || input === 'd'
                         ? true
                         : chalk.red('Invalid hour input'),
             },

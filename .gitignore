@@ -29,3 +29,15 @@ TG2028.xlsx
 
 # Git attributes
 .gitattributes
+
+__pycache__/
+
+# Ignore local changes to config.txt
+/config.txt
+
+# Ignore all .txt files except specific ones
+*.txt
+!attendanceEmail.txt
+!createEmail.txt
+!exportEmail.txt
+!requierments.txt
