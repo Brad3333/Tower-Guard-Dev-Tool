@@ -1,7 +1,5 @@
 import os
 
-#folder_path = "C:/Users/bdaus/TG Reports"
-
 def get_sheets(folder_path: str):
     files: list[str] = []
 
