@@ -6,7 +6,7 @@ const path = require('path');
 
 module.exports = {
 
-    askForEmail: async () => {
+    askForEmailSettings: async () => {
         const { email } = await inquirer.prompt([
             {
                 type: 'input',

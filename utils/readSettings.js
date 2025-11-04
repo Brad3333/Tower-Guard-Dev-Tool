@@ -3,7 +3,7 @@ const path = require('path');
 const result = require('dotenv').config();
 
 const {
-    askForEmail,
+    askForEmailSettings,
     askForEmailPass,
     askForDirectory,
     askForServiceAccount
@@ -30,7 +30,7 @@ async function readSettings() {
     for (const [key, value] of Object.entries(env)) {
         if (!value) {
             if (key === vars[0]) {
-                env.EMAIL_USER = await askForEmail();
+                env.EMAIL_USER = await askForEmailSettings();
             } else if (key === vars[1]) {
                 env.EMAIL_PASS = await askForEmailPass();
             } else if (key === vars[2]) {

@@ -1,6 +1,0 @@
-services:
-  tower-guard-admin-tool:
-    build: .
-    container_name: tower-guard-admin-tool
-    env_file: .env
-    command: npm start

@@ -3,7 +3,7 @@ const path = require('path');
 const chalk = require('chalk');
 
 const {
-    askForEmail,
+    askForEmailSettings,
     askForEmailPass,
     askForDirectory,
     askForSettingsVar,
@@ -46,7 +46,7 @@ async function readSettings() {
 
     if (update) {
         if (decision === vars[0]) {
-            env.EMAIL_USER = await askForEmail();
+            env.EMAIL_USER = await askForEmailSettings();
         } else if (decision === vars[1]) {
             env.EMAIL_PASS = await askForEmailPass();
         } else if (decision === vars[2]) {
