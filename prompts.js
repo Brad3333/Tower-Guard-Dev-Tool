@@ -78,6 +78,27 @@ module.exports = {
         return directory;
     },
 
+    askForServiceAccount: async () => {
+        const { path } = await inquirer.prompt([
+            {
+                type: 'input',
+                name: 'path',
+                prefix: '',
+                message: chalk.gray('Enter the path to your firebase service account:'),
+                validate(input) {
+                    if (!input.trim()) {
+                        return chalk.red('Path cannot be empty.');
+                    }
+                    if (!fs.existsSync(input)) {
+                        return chalk.red('That path does not exist.');
+                    }
+                    return true;
+                },
+            },
+        ]);
+        return path;
+    },
+
     askForMainAction: async () => {
         const { action } = await inquirer.prompt([
             {
@@ -126,11 +147,12 @@ module.exports = {
                 prefix: '',
                 message: chalk.gray('Choose:'),
                 choices: [
-                    { name: 'Email address', value: 'EMAIL_USER' },
-                    { name: 'Email password', value: 'EMAIL_PASS' },
-                    { name: 'Report directory', value: 'REPORT_DIRECTORY' },
+                    { name: 'Email Address', value: 'EMAIL_USER' },
+                    { name: 'Email Password', value: 'EMAIL_PASS' },
+                    { name: 'Report Directory', value: 'REPORT_DIRECTORY' },
+                    { name: 'Firebase Account Path', value: 'FIREBASE_SERVICE_ACCOUNT' },
                 ],
-                pageSize: 3,
+                pageSize: 4,
             },
         ]);
         return variable;

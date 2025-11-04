@@ -1,0 +1,47 @@
+# Node modules
+node_modules/
+
+# Environment variables
+!.env
+
+# Firebase Admin SDK keys (sensitive)
+service_account.json
+service_account_app.json
+service_account_test.json
+service_account.json.json
+serviceAccountKey.json
+keys.txt
+
+# Excel / spreadsheet files (sensitive member data)
+*.xlsx
+~$*.xlsx
+
+# Output files generated during runtime
+output/
+output.xlsx
+TG2028.xlsx
+
+# Editor config files
+.vscode/
+
+# Prettier config
+.prettierrc
+
+# Git attributes
+.gitattributes
+
+# Python cache
+__pycache__/
+
+# Ignore local changes to config.txt
+/config.txt
+
+# Ignore all .txt files except specific ones needed in the container
+*.txt
+!attendanceEmail.txt
+!createEmail.txt
+!exportEmail.txt
+!requierments.txt
+
+# Optional: ignore logs
+*.log
