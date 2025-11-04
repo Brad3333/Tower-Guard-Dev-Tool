@@ -33,7 +33,7 @@ TG2028.xlsx
 __pycache__/
 
 # Ignore local changes to config.txt
-/config.txt
+config.txt
 
 # Ignore all .txt files except specific ones
 *.txt
