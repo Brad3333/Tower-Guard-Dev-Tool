@@ -1,7 +1,4 @@
 const chalk = require('chalk');
-// const fsPromises = require('fs').promises;
-// const fs = require('fs');
-// const path = require('path');
 
 const {
     askForMainAction,
@@ -32,14 +29,17 @@ const emailUsers = require('./commands/emailUsers');
 const startingEmail = require('./commands/startingEmail');
 const excelAttendance = require('./commands/execlAttendance');
 const attendance = require('./commands/attendance');
+const editPendingSubmission = require('./commands/editPendingSubmission');
 
 const readSettings = require('./utils/readSettings');
 const editSettings = require('./utils/editSettings');
 
 async function main() {
+    const name = 'Tower Guard Admin Tool v2.0.0';
+
     try {
         console.clear();
-        console.log(chalk.greenBright.bold('Tower Guard Admin Tool v1.0.0'));
+        console.log(chalk.greenBright.bold(name));
 
         const settings = await readSettings();
         const directory = settings.directory;
@@ -71,6 +71,19 @@ async function main() {
                 case 't': {
                     const year = await askForYearInput();
                     await transferYear(year);
+                    await exit();
+                    break;
+                }
+                case 'eps': {
+                    const decision = await askForDisplayInputType();
+                    let year = '';
+                    let email = '';
+                    if (decision === 'a') {
+                        year = await askToDisplay();
+                    } else {
+                        email = await askForEmail();
+                    }
+                    await editPendingSubmission(year, email);
                     await exit();
                     break;
                 }
@@ -139,7 +152,7 @@ async function main() {
                 }
                 case 'es': {
                     await editSettings();
-                    await exit()
+                    await exit();
                     break;
                 }
                 case 'o': {
@@ -178,7 +191,11 @@ async function main() {
             }
 
             console.clear();
+
+            console.log(chalk.greenBright.bold(name));
         }
+
+        console.clear();
     } catch (error) {
         console.error(
             chalk.red('An unexpected error occurred: '),

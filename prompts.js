@@ -1,5 +1,5 @@
 const inquirer = require('inquirer');
-const { db } = require('./config/firebase');
+const { db, name } = require('./config/firebase');
 const fs = require('fs');
 const chalk = require('chalk');
 const path = require('path');
@@ -78,27 +78,6 @@ module.exports = {
         return directory;
     },
 
-    askForServiceAccount: async () => {
-        const { path } = await inquirer.prompt([
-            {
-                type: 'input',
-                name: 'path',
-                prefix: '',
-                message: chalk.gray('Enter the path to your firebase service account:'),
-                validate(input) {
-                    if (!input.trim()) {
-                        return chalk.red('Path cannot be empty.');
-                    }
-                    if (!fs.existsSync(input)) {
-                        return chalk.red('That path does not exist.');
-                    }
-                    return true;
-                },
-            },
-        ]);
-        return path;
-    },
-
     askForMainAction: async () => {
         const { action } = await inquirer.prompt([
             {
@@ -113,6 +92,12 @@ module.exports = {
                     { name: 'Create users', value: 'u' },
                     { name: 'Display users', value: 'v' },
                     { name: 'Edit user', value: 'e' },
+
+                    new inquirer.Separator(
+                        chalk.magenta.bold('--- Submission Operations ---')
+                    ),
+                    { name: 'Edit pending submission', value: 'eps' },
+                    { name: 'Create submission', value: 'cs' },
 
                     new inquirer.Separator(
                         chalk.magenta.bold('--- Data Handling ---')
@@ -133,7 +118,7 @@ module.exports = {
                     { name: 'Settings', value: 'es' },
                     { name: 'Exit', value: 'exit' },
                 ],
-                pageSize: 16,
+                pageSize: 19,
             },
         ]);
         return action;
@@ -147,10 +132,12 @@ module.exports = {
                 prefix: '',
                 message: chalk.gray('Choose:'),
                 choices: [
+                    new inquirer.Separator(
+                        chalk.cyanBright.bold(`Using database: ${name}`)
+                    ),
                     { name: 'Email Address', value: 'EMAIL_USER' },
                     { name: 'Email Password', value: 'EMAIL_PASS' },
                     { name: 'Report Directory', value: 'REPORT_DIRECTORY' },
-                    { name: 'Firebase Account Path', value: 'FIREBASE_SERVICE_ACCOUNT' },
                 ],
                 pageSize: 4,
             },
@@ -433,6 +420,31 @@ module.exports = {
         ]);
 
         return selectedMeeting;
+    },
+
+    askForSubmission: async (submissions) => {
+
+        const submissionsDisplay = [];
+
+        submissions.forEach((doc) => {
+            const data = doc.data();
+
+            const name = `${data.name}: ${data.hourType}, ${data.timeSpent}, ${data.description}`
+            submissionsDisplay.push({name: name, value: doc.id})
+        })
+
+        // Let the user choose from submisions
+        const { selectedSubmission } = await inquirer.prompt([
+            {
+                type: 'list',
+                name: 'selectedSubmission',
+                message: chalk.gray('Select a submission:'),
+                choices: submissionsDisplay,
+                prefix: '',
+            },
+        ]);
+
+        return selectedSubmission;
     },
 
     askForYearInput: async () => {

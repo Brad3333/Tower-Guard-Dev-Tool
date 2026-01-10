@@ -5,17 +5,15 @@ const result = require('dotenv').config();
 const {
     askForEmailSettings,
     askForEmailPass,
-    askForDirectory,
-    askForServiceAccount
+    askForDirectory
 } = require('../prompts');
 
-const vars = ['EMAIL_USER', 'EMAIL_PASS', 'REPORT_DIRECTORY', 'FIREBASE_SERVICE_ACCOUNT'];
+const vars = ['EMAIL_USER', 'EMAIL_PASS', 'REPORT_DIRECTORY'];
 
 const env = {
     EMAIL_USER: process.env[vars[0]],
     EMAIL_PASS: process.env[vars[1]],
-    REPORT_DIRECTORY: process.env[vars[2]],
-    FIREBASE_SERVICE_ACCOUNT: process.env[vars[3]]
+    REPORT_DIRECTORY: process.env[vars[2]]
 };
 
 async function readSettings() {
@@ -36,8 +34,6 @@ async function readSettings() {
             } else if (key === vars[2]) {
                 const directory = await askForDirectory();
                 env.REPORT_DIRECTORY = path.join(directory, 'TG Reports');
-            } else if (key === vars[3]) {
-                env.FIREBASE_SERVICE_ACCOUNT  = await askForServiceAccount();
             }
         }
     }

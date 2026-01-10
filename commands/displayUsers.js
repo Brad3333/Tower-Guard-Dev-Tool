@@ -20,7 +20,7 @@ async function displayUsers(yearInput, email = '') {
 
             if (users.length > 0) {
                 console.log(
-                    chalk.green.bold(`${users.length} users in ${yearInput}`)
+                    chalk.green.bold(`${users.length} users in ${yearInput === 'a' ? 'all users' : `class of ${yearInput}`}`)
                 );
                 const user = await pickUserToDisplay(users);
                 console.table(user);

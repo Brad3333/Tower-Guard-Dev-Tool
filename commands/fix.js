@@ -8,7 +8,7 @@ function getLocalDateString(date = new Date()) {
     return `${year}-${month}-${day}`;
 }
 
-async function avery() {
+async function fix() {
     const uid = 'FUkLC5c6CKQJWhiCzypO7ZXQ0Uq1';
     const snap = await db
         .collection('volunteer_submissions_2028')
@@ -70,4 +70,4 @@ async function avery() {
     console.log("total: ", counter + 3.5)
 }
 
-avery();
+fix();
