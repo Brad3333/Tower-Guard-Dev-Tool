@@ -5,7 +5,7 @@ const result = require('dotenv').config();
 const {
     askForEmailSettings,
     askForEmailPass,
-    askForDirectory
+    askForDirectory,
 } = require('../prompts');
 
 const vars = ['EMAIL_USER', 'EMAIL_PASS', 'REPORT_DIRECTORY'];
@@ -13,7 +13,7 @@ const vars = ['EMAIL_USER', 'EMAIL_PASS', 'REPORT_DIRECTORY'];
 const env = {
     EMAIL_USER: process.env[vars[0]],
     EMAIL_PASS: process.env[vars[1]],
-    REPORT_DIRECTORY: process.env[vars[2]]
+    REPORT_DIRECTORY: process.env[vars[2]],
 };
 
 async function readSettings() {
@@ -49,7 +49,6 @@ async function readSettings() {
     }
 
     return { directory: env.REPORT_DIRECTORY };
-
 }
 
 module.exports = readSettings;

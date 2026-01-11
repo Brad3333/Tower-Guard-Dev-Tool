@@ -4,6 +4,8 @@ const {
     askForFieldIndex,
     askForNewValue,
     askToSendEmail,
+    askForBoolean,
+    askForRole,
 } = require('../prompts');
 const emailUsers = require('../commands/emailUsers');
 
@@ -13,14 +15,54 @@ async function editUser(email) {
 
     const ref = snap.docs[0].ref;
     const data = snap.docs[0].data();
-    const fields = Object.entries(data);
+
+    const organized = {
+        // User Info
+        firstName: data.firstName,
+        lastName: data.lastName,
+        name: data.name,
+        email: data.email,
+        role: data.role === 'data' ? 'Sergeant At Arms' : 'Member',
+        eboard: data.eboard,
+        year: data.year,
+
+        // Attendance Tracking
+        attendance: data.attendance,
+        excusedAbsences: data.excusedAbsences,
+        lastMeeting: data.lastMeeting,
+
+        // Hour Tracking
+        scribingHours: data.scribingHours,
+        etextingHours: data.etextingHours,
+        liveHours: data.liveHours,
+        totalHours: data.totalHours,
+
+        // Extra Flags
+        exclude: data.exclude,
+    };
+
+    const fields = Object.entries(organized);
 
     const index = await askForFieldIndex(fields);
+
+    if (index === -1) {
+        return;
+    }
+
     const key = fields[index][0];
     const oldValue = fields[index][1];
 
     console.log(chalk.cyan(`Editing ${key}: current value -> ${oldValue}`));
-    const newValue = await askForNewValue();
+
+    let newValue = null;
+
+    if (['lastMeeting', 'eboard', 'exclude'].includes(key)) {
+        newValue = await askForBoolean();
+    } else if (key === 'role') {
+        newValue = await askForRole();
+    } else {
+        newValue = await askForNewValue();
+    }
 
     let updateData = { [key]: newValue };
 
@@ -43,6 +85,11 @@ async function editUser(email) {
     }
 
     await ref.update(updateData);
+
+    if (key === 'role') {
+        newValue = newValue === 'member' ? 'Member' : 'Sergeant At Arms';
+    }
+
     console.log(
         chalk.green.bold(`Updated ${key} from ${oldValue} to ${newValue}`)
     );

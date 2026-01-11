@@ -35,7 +35,7 @@ const readSettings = require('./utils/readSettings');
 const editSettings = require('./utils/editSettings');
 
 async function main() {
-    const name = 'Tower Guard Admin Tool v2.0.0';
+    const name = 'Tower Guard Admin Tool v2.1.0';
 
     try {
         console.clear();
@@ -79,7 +79,7 @@ async function main() {
                     let year = '';
                     let email = '';
                     if (decision === 'a') {
-                        year = await askToDisplay();
+                        year = await askForYear();
                     } else {
                         email = await askForEmail();
                     }

@@ -3,14 +3,20 @@ const chalk = require('chalk');
 const { pickUserToDisplay } = require('../prompts');
 
 async function displayUsers(yearInput, email = '') {
-    
     try {
-        if(email) {
-            const userSnapshot = await db.collection('users').where('email', '==', email).get();
-            const userData = userSnapshot.docs[0].data()
+        if (email) {
+            const userSnapshot = await db
+                .collection('users')
+                .where('email', '==', email)
+                .get();
+            const userData = userSnapshot.docs[0].data();
             console.table(userData);
         } else {
-            const usersSnapshot = await db.collection('users').where('exclude', '==', false).orderBy('firstName').get();
+            const usersSnapshot = await db
+                .collection('users')
+                .where('exclude', '==', false)
+                .orderBy('firstName')
+                .get();
 
             let users = usersSnapshot.docs.map((doc) => doc.data());
 
@@ -20,7 +26,9 @@ async function displayUsers(yearInput, email = '') {
 
             if (users.length > 0) {
                 console.log(
-                    chalk.green.bold(`${users.length} users in ${yearInput === 'a' ? 'all users' : `class of ${yearInput}`}`)
+                    chalk.green.bold(
+                        `${users.length} users in ${yearInput === 'a' ? 'all users' : `class of ${yearInput}`}`
+                    )
                 );
                 const user = await pickUserToDisplay(users);
                 console.table(user);

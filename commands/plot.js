@@ -11,7 +11,12 @@ async function createPlot(directory, outputPath) {
 
     // Wrap spawn in a promise so we can await it
     await new Promise((resolve, reject) => {
-        const python = spawn('python', [pythonPath, directory, outputPath, ...actions]);
+        const python = spawn('python', [
+            pythonPath,
+            directory,
+            outputPath,
+            ...actions,
+        ]);
 
         python.stdout.on('data', (data) => {
             const print = data.toString();

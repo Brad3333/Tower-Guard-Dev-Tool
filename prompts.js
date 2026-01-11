@@ -1,11 +1,11 @@
 const inquirer = require('inquirer');
+const { Separator } = inquirer;
 const { db, name } = require('./config/firebase');
 const fs = require('fs');
 const chalk = require('chalk');
 const path = require('path');
 
 module.exports = {
-
     askForEmailSettings: async () => {
         const { email } = await inquirer.prompt([
             {
@@ -60,7 +60,9 @@ module.exports = {
                 type: 'input',
                 name: 'directory',
                 prefix: '',
-                message: chalk.gray('Enter the base folder path for your reports:'),
+                message: chalk.gray(
+                    'Enter the base folder path for your reports:'
+                ),
                 validate(input) {
                     if (!input.trim()) {
                         return chalk.red('Path cannot be empty.');
@@ -423,15 +425,14 @@ module.exports = {
     },
 
     askForSubmission: async (submissions) => {
-
         const submissionsDisplay = [];
 
         submissions.forEach((doc) => {
             const data = doc.data();
 
-            const name = `${data.name}: ${data.hourType}, ${data.timeSpent}, ${data.description}`
-            submissionsDisplay.push({name: name, value: doc.id})
-        })
+            const name = `${data.name}: ${data.hourType}, ${data.timeSpent}, ${data.description}`;
+            submissionsDisplay.push({ name: name, value: doc.id });
+        });
 
         // Let the user choose from submisions
         const { selectedSubmission } = await inquirer.prompt([
@@ -498,16 +499,101 @@ module.exports = {
     },
 
     askForFieldIndex: async (fields) => {
+        const labelize = (key) => {
+            if (key === 'firstName') return 'First Name';
+            if (key === 'lastName') return 'Last Name';
+            if (key === 'name') return 'Display Name';
+            if (key === 'etextingHours') return 'E-Texting Hours';
+            if (key === 'liveHours') return 'Live Hours';
+            if (key === 'scribingHours') return 'Scribing Hours';
+            if (key === 'excusedAbsences') return 'Excused Absences';
+            if (key === 'lastMeeting') return 'Last Meeting';
+            if (key === 'totalHours') return 'Total Hours';
+            return key.charAt(0).toUpperCase() + key.slice(1);
+        };
+
+        const makeGroup = (title, keys) => {
+            return [
+                new Separator(chalk.cyan(`--- ${title} ---`)),
+                ...fields
+                    .map(([key, value], idx) => ({ key, value, idx }))
+                    .filter((f) => keys.includes(f.key))
+                    .map((f) => ({
+                        name: `${labelize(f.key)}: ${chalk.bold(f.value)}`,
+                        value: f.idx,
+                    })),
+            ];
+        };
+
+        const choices = [
+            ...makeGroup('User Info', [
+                'firstName',
+                'lastName',
+                'name',
+                'email',
+                'role',
+                'eboard',
+                'year',
+            ]),
+            ...makeGroup('Attendance Info', [
+                'attendance',
+                'excusedAbsences',
+                'lastMeeting',
+            ]),
+            ...makeGroup('Hour Counts', [
+                'scribingHours',
+                'etextingHours',
+                'liveHours',
+                'totalHours',
+            ]),
+            ...makeGroup('Extra', ['exclude']),
+            new Separator(),
+            { name: chalk.red('Cancel'), value: -1 },
+        ];
+
         const { index } = await inquirer.prompt([
             {
                 type: 'list',
                 name: 'index',
                 message: chalk.gray('Select a field to edit:'),
-                choices: fields.map(([key, value], idx) => ({
-                    name: `${key}: ${chalk.bold(value)}`,
-                    value: idx,
-                })),
-                pageSize: 15,
+                choices,
+                pageSize: 21,
+                prefix: '',
+            },
+        ]);
+
+        return index;
+    },
+
+    askForFieldIndexSubmission: async (fields) => {
+        const { index } = await inquirer.prompt([
+            {
+                type: 'list',
+                name: 'index',
+                message: chalk.gray('Select a field to edit:'),
+                choices: [
+                    ...fields.map(([key, value], idx) => {
+                        let name = key;
+
+                        if (key === 'hourType') {
+                            name = 'Hour Type';
+                        } else if (key === 'date') {
+                            name = 'Date';
+                        } else if (key === 'description') {
+                            name = 'Descritpion';
+                        } else {
+                            name = 'Time Spent';
+                        }
+
+                        return {
+                            name: `${name}: ${chalk.bold(value)}`,
+                            value: idx,
+                        };
+                    }),
+                    new Separator(),
+                    { name: chalk.red('Cancel'), value: -1 },
+                ],
+                pageSize: 20,
                 prefix: '',
             },
         ]);
@@ -524,6 +610,89 @@ module.exports = {
             },
         ]);
         return value;
+    },
+
+    askForDate: async () => {
+        const { date } = await inquirer.prompt([
+            {
+                type: 'input',
+                name: 'date',
+                prefix: '',
+                message: chalk.gray('New date (YYYY-MM-DD):'),
+                validate: (input) => {
+                    if (!/^\d{4}-\d{2}-\d{2}$/.test(input)) {
+                        return 'Format must be YYYY-MM-DD';
+                    }
+
+                    const d = new Date(input);
+                    if (isNaN(d.getTime())) {
+                        return 'Invalid date';
+                    }
+
+                    const year = d.getUTCFullYear();
+                    if (year < 2024 || year > 2100) {
+                        return 'Year must be between 2024 and 2100';
+                    }
+
+                    return true;
+                },
+            },
+        ]);
+
+        return new Date(date).toISOString().slice(0, 10);
+    },
+
+    askForNewHourType: async () => {
+        const { hourType } = await inquirer.prompt([
+            {
+                type: 'list',
+                name: 'hourType',
+                message: chalk.gray('Select the new hour type:'),
+                choices: [
+                    { name: 'General', value: 'General' },
+                    { name: 'Live', value: 'Live' },
+                    { name: 'E-Texting', value: 'E-Texting' },
+                    { name: 'Scribing', value: 'Scribing' },
+                ],
+                pageSize: 4,
+                prefix: '',
+            },
+        ]);
+        return hourType;
+    },
+
+    askForBoolean: async () => {
+        const { bool } = await inquirer.prompt([
+            {
+                type: 'list',
+                name: 'bool',
+                message: chalk.gray('Select boolean value:'),
+                choices: [
+                    { name: 'True', value: 'true' },
+                    { name: 'False', value: 'false' },
+                ],
+                pageSize: 2,
+                prefix: '',
+            },
+        ]);
+        return bool;
+    },
+
+    askForRole: async () => {
+        const { role } = await inquirer.prompt([
+            {
+                type: 'list',
+                name: 'role',
+                message: chalk.gray('Select role:'),
+                choices: [
+                    { name: 'Member', value: 'member' },
+                    { name: 'Sergeant At Arms', value: 'data' },
+                ],
+                pageSize: 2,
+                prefix: '',
+            },
+        ]);
+        return role;
     },
 
     pickUserToDisplay: async (users) => {
@@ -575,7 +744,9 @@ module.exports = {
                 type: 'input',
                 name: 'directory',
                 prefix: '',
-                message: chalk.gray('Enter or paste the base directory path, this will be where all your reports are placed:'),
+                message: chalk.gray(
+                    'Enter or paste the base directory path, this will be where all your reports are placed:'
+                ),
                 validate(input) {
                     if (!input.trim()) {
                         return chalk.red('Path cannot be empty.');
@@ -681,7 +852,9 @@ module.exports = {
                 type: 'input',
                 name: 'hours',
                 prefix: '',
-                message: chalk.gray('How many hours would be on track, or enter \'d\' for default:'),
+                message: chalk.gray(
+                    "How many hours would be on track, or enter 'd' for default:"
+                ),
                 validate: (input) =>
                     /^\d+$/.test(input) || input === 'd'
                         ? true

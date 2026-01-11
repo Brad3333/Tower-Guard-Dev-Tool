@@ -3,7 +3,7 @@ require('dotenv').config();
 const chalk = require('chalk');
 
 const transporter = nodemailer.createTransport({
-    host: "smtp.gmail.com",
+    host: 'smtp.gmail.com',
     port: 465,
     secure: true,
     auth: {

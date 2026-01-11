@@ -2,9 +2,11 @@ const { db } = require('../config/firebase');
 const chalk = require('chalk');
 const {
     askForSubmission,
-    askForFieldIndex,
+    askForFieldIndexSubmission,
     askForNewValue,
     askToSendEmail,
+    askForNewHourType,
+    askForDate,
 } = require('../prompts');
 
 async function editPendingSubmission(year, email) {
@@ -62,13 +64,26 @@ async function editPendingSubmission(year, email) {
 
     const fields = Object.entries(filtered);
 
-    const index = await askForFieldIndex(fields);
+    const index = await askForFieldIndexSubmission(fields);
+
+    if (index === -1) {
+        return;
+    }
 
     const key = fields[index][0];
     const oldValue = fields[index][1];
 
+    let newValue = null;
+
     console.log(chalk.cyan(`Editing ${key}: current value -> ${oldValue}`));
-    const newValue = await askForNewValue();
+
+    if (key === 'hourType') {
+        newValue = await askForNewHourType();
+    } else if (key === 'date') {
+        newValue = await askForDate();
+    } else {
+        newValue = await askForNewValue();
+    }
 
     let updateData = { [key]: newValue };
 

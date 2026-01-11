@@ -35,11 +35,10 @@ for week in range(1, 33):
     start[index] += delta
     end[index] += delta
 
-
 def find_total(date_str: str) -> float:
     """
-    Given a date, return the overall cumulative hours
-    that should have been completed up to that date.
+    Given a date, return the cumulative hours up to that date,
+    including proper handling of gaps (e.g., winter break).
     """
     try:
         d = datetime.strptime(date_str, "%Y-%m-%d").date()
@@ -54,24 +53,21 @@ def find_total(date_str: str) -> float:
     if d > weeks[-1].end:
         return float(weeks[-1].end_total_)
 
-    # Find which week this date falls into
+    # Iterate through weeks
     for i, week in enumerate(weeks):
         if week.start <= d <= week.end:
             prev_total = weeks[i - 1].end_total_ if i > 0 else 0
-
-            # Handle special case: weeks with 0 hours (like spring break)
             if week.amount_ == 0:
                 return float(prev_total)
 
-            # Days into the current week (1–7)
             days_into_week = (d - week.start).days + 1
             total_days = (week.end - week.start).days + 1
-
-            # Fraction of the week completed
             progress = days_into_week / total_days
+            return round(prev_total + week.amount_ * progress, 2)
 
-            # Add partial weekly progress
-            partial_total = week.amount_ * progress
-            return round(prev_total + partial_total, 2)
+        # Handle gaps between weeks
+        if i < len(weeks) - 1 and week.end < d < weeks[i + 1].start:
+            return float(week.end_total_)
 
+    # Shouldn’t reach here
     return 0.0

@@ -5,7 +5,7 @@ const { sendTemplatedEmail } = require('../utils/email');
 const chalk = require('chalk');
 const path = require('path');
 const customize = require('../utils/emailConverter');
-const fs = require('fs')
+const fs = require('fs');
 
 async function updateUsers(filePath) {
     const users = parseExcel(filePath);
