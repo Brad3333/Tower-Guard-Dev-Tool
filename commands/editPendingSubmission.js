@@ -1,13 +1,17 @@
 const { db } = require('../config/firebase');
 const chalk = require('chalk');
 const {
-    askForSubmission,
-    askForFieldIndexSubmission,
-    askForNewValue,
     askToSendEmail,
-    askForNewHourType,
-    askForDate,
+    confirmation,
 } = require('../prompts');
+
+const {
+    askForSubmission,
+    askForFieldIndex,
+    askForHourType,
+    askForDate,
+    askForValue,
+} = require('../prompts/submissionPropmts');
 
 async function editPendingSubmission(year, email) {
     let submissionsSnapshot = [];
@@ -64,9 +68,24 @@ async function editPendingSubmission(year, email) {
 
     const fields = Object.entries(filtered);
 
-    const index = await askForFieldIndexSubmission(fields);
+    const index = await askForFieldIndex(fields);
 
     if (index === -1) {
+        return;
+    } else if (index === -2) {
+        const confirmed = await confirmation();
+        if (confirmed) {
+            const batch = db.batch();
+
+            batch.delete(ref);
+
+            await batch.commit();
+            console.log(
+                chalk.green.bold(
+                    `Deleted submission`
+                )
+            );
+        }
         return;
     }
 
@@ -78,11 +97,11 @@ async function editPendingSubmission(year, email) {
     console.log(chalk.cyan(`Editing ${key}: current value -> ${oldValue}`));
 
     if (key === 'hourType') {
-        newValue = await askForNewHourType();
+        newValue = await askForHourType('Select the new hour type:');
     } else if (key === 'date') {
-        newValue = await askForDate();
+        newValue = await askForDate('New date (YYYY-MM-DD):');
     } else {
-        newValue = await askForNewValue();
+        newValue = await askForValue('New value:');
     }
 
     let updateData = { [key]: newValue };

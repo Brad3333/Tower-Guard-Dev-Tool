@@ -34,4 +34,5 @@ module.exports = {
     db: admin.firestore(),
     auth: admin.auth(),
     name: db_name,
+    admin,
 };

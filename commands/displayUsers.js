@@ -1,6 +1,6 @@
 const { db } = require('../config/firebase');
 const chalk = require('chalk');
-const { pickUserToDisplay } = require('../prompts');
+const { pickUserToDisplay, displayUserData } = require('../prompts');
 
 async function displayUsers(yearInput, email = '') {
     try {
@@ -31,7 +31,8 @@ async function displayUsers(yearInput, email = '') {
                     )
                 );
                 const user = await pickUserToDisplay(users);
-                console.table(user);
+                await displayUserData(Object.entries(user));
+                return;
             } else {
                 console.log(chalk.red(`No users form ${yearInput}`));
             }

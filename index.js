@@ -30,6 +30,7 @@ const startingEmail = require('./commands/startingEmail');
 const excelAttendance = require('./commands/execlAttendance');
 const attendance = require('./commands/attendance');
 const editPendingSubmission = require('./commands/editPendingSubmission');
+const createSubmission = require('./commands/createSubmission');
 
 const readSettings = require('./utils/readSettings');
 const editSettings = require('./utils/editSettings');
@@ -84,6 +85,12 @@ async function main() {
                         email = await askForEmail();
                     }
                     await editPendingSubmission(year, email);
+                    await exit();
+                    break;
+                }
+                case 'cs': {
+                    const email = await askForEmail();
+                    await createSubmission(email);
                     await exit();
                     break;
                 }

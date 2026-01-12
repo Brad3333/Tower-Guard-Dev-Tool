@@ -98,8 +98,8 @@ module.exports = {
                     new inquirer.Separator(
                         chalk.magenta.bold('--- Submission Operations ---')
                     ),
-                    { name: 'Edit pending submission', value: 'eps' },
                     { name: 'Create submission', value: 'cs' },
+                    { name: 'Edit pending submission', value: 'eps' },
 
                     new inquirer.Separator(
                         chalk.magenta.bold('--- Data Handling ---')
@@ -118,9 +118,12 @@ module.exports = {
                     { name: 'Excel attendance', value: 'ea' },
                     { name: 'Admin Tools', value: 'o' },
                     { name: 'Settings', value: 'es' },
+                    new inquirer.Separator(
+                        chalk.magenta.bold('-----------------')
+                    ),
                     { name: 'Exit', value: 'exit' },
                 ],
-                pageSize: 19,
+                pageSize: 20,
             },
         ]);
         return action;
@@ -424,30 +427,6 @@ module.exports = {
         return selectedMeeting;
     },
 
-    askForSubmission: async (submissions) => {
-        const submissionsDisplay = [];
-
-        submissions.forEach((doc) => {
-            const data = doc.data();
-
-            const name = `${data.name}: ${data.hourType}, ${data.timeSpent}, ${data.description}`;
-            submissionsDisplay.push({ name: name, value: doc.id });
-        });
-
-        // Let the user choose from submisions
-        const { selectedSubmission } = await inquirer.prompt([
-            {
-                type: 'list',
-                name: 'selectedSubmission',
-                message: chalk.gray('Select a submission:'),
-                choices: submissionsDisplay,
-                prefix: '',
-            },
-        ]);
-
-        return selectedSubmission;
-    },
-
     askForYearInput: async () => {
         const { year } = await inquirer.prompt([
             {
@@ -548,7 +527,7 @@ module.exports = {
             ]),
             ...makeGroup('Extra', ['exclude']),
             new Separator(),
-            { name: chalk.red('Cancel'), value: -1 },
+            { name: chalk.grey('Cancel'), value: -1 },
         ];
 
         const { index } = await inquirer.prompt([
@@ -565,39 +544,71 @@ module.exports = {
         return index;
     },
 
-    askForFieldIndexSubmission: async (fields) => {
-        const { index } = await inquirer.prompt([
+    displayUserData: async (fields) => {
+        const labelize = (key) => {
+            if (key === 'firstName') return 'First Name';
+            if (key === 'lastName') return 'Last Name';
+            if (key === 'name') return 'Display Name';
+            if (key === 'etextingHours') return 'E-Texting Hours';
+            if (key === 'liveHours') return 'Live Hours';
+            if (key === 'scribingHours') return 'Scribing Hours';
+            if (key === 'excusedAbsences') return 'Excused Absences';
+            if (key === 'lastMeeting') return 'Last Meeting';
+            if (key === 'totalHours') return 'Total Hours';
+            return key.charAt(0).toUpperCase() + key.slice(1);
+        };
+    
+        const makeGroup = (title, keys) => {
+            return [
+                new Separator(chalk.cyan(`--- ${title} ---`)),
+                ...fields
+                    .map(([key, value], idx) => ({ key, value, idx }))
+                    .filter((f) => keys.includes(f.key))
+                    .map((f) => ({
+                        name: `${labelize(f.key)}: ${chalk.bold(f.value)}`,
+                        value: f.idx,
+                    })),
+            ];
+        };
+    
+        const choices = [
+            ...makeGroup('User Info', [
+                'firstName',
+                'lastName',
+                'name',
+                'email',
+                'role',
+                'eboard',
+                'year',
+            ]),
+            ...makeGroup('Attendance Info', [
+                'attendance',
+                'excusedAbsences',
+                'lastMeeting',
+            ]),
+            ...makeGroup('Hour Counts', [
+                'scribingHours',
+                'etextingHours',
+                'liveHours',
+                'totalHours',
+            ]),
+            ...makeGroup('Extra', ['exclude']),
+            new Separator(),
+            { name: 'Exit', value: -1 },
+        ];
+    
+        const { exit } = await inquirer.prompt([
             {
                 type: 'list',
-                name: 'index',
-                message: chalk.gray('Select a field to edit:'),
-                choices: [
-                    ...fields.map(([key, value], idx) => {
-                        let name = key;
-
-                        if (key === 'hourType') {
-                            name = 'Hour Type';
-                        } else if (key === 'date') {
-                            name = 'Date';
-                        } else if (key === 'description') {
-                            name = 'Descritpion';
-                        } else {
-                            name = 'Time Spent';
-                        }
-
-                        return {
-                            name: `${name}: ${chalk.bold(value)}`,
-                            value: idx,
-                        };
-                    }),
-                    new Separator(),
-                    { name: chalk.red('Cancel'), value: -1 },
-                ],
-                pageSize: 20,
+                name: 'exit',
+                message: chalk.gray('Diplayed Data:'),
+                choices,
+                pageSize: 21,
                 prefix: '',
             },
         ]);
-        return index;
+    
+        return exit;
     },
 
     askForNewValue: async () => {
@@ -610,55 +621,6 @@ module.exports = {
             },
         ]);
         return value;
-    },
-
-    askForDate: async () => {
-        const { date } = await inquirer.prompt([
-            {
-                type: 'input',
-                name: 'date',
-                prefix: '',
-                message: chalk.gray('New date (YYYY-MM-DD):'),
-                validate: (input) => {
-                    if (!/^\d{4}-\d{2}-\d{2}$/.test(input)) {
-                        return 'Format must be YYYY-MM-DD';
-                    }
-
-                    const d = new Date(input);
-                    if (isNaN(d.getTime())) {
-                        return 'Invalid date';
-                    }
-
-                    const year = d.getUTCFullYear();
-                    if (year < 2024 || year > 2100) {
-                        return 'Year must be between 2024 and 2100';
-                    }
-
-                    return true;
-                },
-            },
-        ]);
-
-        return new Date(date).toISOString().slice(0, 10);
-    },
-
-    askForNewHourType: async () => {
-        const { hourType } = await inquirer.prompt([
-            {
-                type: 'list',
-                name: 'hourType',
-                message: chalk.gray('Select the new hour type:'),
-                choices: [
-                    { name: 'General', value: 'General' },
-                    { name: 'Live', value: 'Live' },
-                    { name: 'E-Texting', value: 'E-Texting' },
-                    { name: 'Scribing', value: 'Scribing' },
-                ],
-                pageSize: 4,
-                prefix: '',
-            },
-        ]);
-        return hourType;
     },
 
     askForBoolean: async () => {
